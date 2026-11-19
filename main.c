@@ -61,9 +61,11 @@ static FnImprimeXMLCancelamentoSAT ImprimeXMLCancelamentoSAT;
 static HMODULE dll = NULL;
 
 /* Procura um comando dentro da DLL. Devolve 1 se achou, 0 se nao achou. */
-static int carregaFuncao(void *destino, const char *nome) {
+static int carregaFuncao(void *destino, const char *nome)
+{
     FARPROC f = GetProcAddress(dll, nome);
-    if (f == NULL) {
+    if (f == NULL)
+    {
         printf("Comando '%s' nao encontrado na DLL.\n", nome);
         return 0;
     }
@@ -72,9 +74,11 @@ static int carregaFuncao(void *destino, const char *nome) {
 }
 
 /* Carrega a DLL da raiz do projeto e todos os comandos. Devolve 1 se deu certo. */
-static int carregarDLL(void) {
+static int carregarDLL(void)
+{
     dll = LoadLibraryA("E1_Impressora01.dll");
-    if (dll == NULL) {
+    if (dll == NULL)
+    {
         printf("Nao foi possivel carregar E1_Impressora01.dll (erro %lu).\n", GetLastError());
         printf("Confira: a DLL esta na raiz do projeto? Ela tem a mesma arquitetura (32/64 bits) do compilador?\n");
         return 0;
@@ -105,9 +109,9 @@ static int carregarDLL(void) {
 
 /* ===================== Variaveis do programa ===================== */
 
-static int conexaoAberta = 0;       /* 0 = fechada, 1 = aberta */
-static int tipo = 1;                /* 1 = USB, 2 = Serial, 3 = Rede... */
-static char modelo[50] = "i9";      /* "i8" ou "i9" */
+static int conexaoAberta = 0;  /* 0 = fechada, 1 = aberta */
+static int tipo = 1;           /* 1 = USB, 2 = Serial, 3 = Rede... */
+static char modelo[50] = "i9"; /* "i8" ou "i9" */
 static char conexao[50] = "USB";
 static int parametro = 0;
 
@@ -121,9 +125,11 @@ static const char *ASS_QRCODE =
 /* ===================== Funcoes auxiliares ===================== */
 
 /* Mostra a mensagem e le uma linha de texto digitada (sem o ENTER no final) */
-static void capturarEntrada(const char *mensagem, char *destino, int tamanho) {
+static void capturarEntrada(const char *mensagem, char *destino, int tamanho)
+{
     printf("%s", mensagem);
-    if (fgets(destino, tamanho, stdin) == NULL) {
+    if (fgets(destino, tamanho, stdin) == NULL)
+    {
         destino[0] = '\0';
         return;
     }
@@ -131,13 +137,16 @@ static void capturarEntrada(const char *mensagem, char *destino, int tamanho) {
 }
 
 /* Mostra a mensagem e le um numero inteiro. Se digitar letras, pergunta de novo. */
-static int lerInteiro(const char *mensagem) {
+static int lerInteiro(const char *mensagem)
+{
     char linha[50];
     char *fim;
-    while (1) {
+    while (1)
+    {
         capturarEntrada(mensagem, linha, sizeof(linha));
         long valor = strtol(linha, &fim, 10);
-        if (linha[0] != '\0' && *fim == '\0') {
+        if (linha[0] != '\0' && *fim == '\0')
+        {
             return (int)valor;
         }
         printf("Digite apenas numeros!\n");
@@ -145,9 +154,11 @@ static int lerInteiro(const char *mensagem) {
 }
 
 /* Le um arquivo inteiro para a memoria. Devolve NULL se nao achar. Quem chama deve dar free(). */
-static char *lerArquivo(const char *caminho) {
+static char *lerArquivo(const char *caminho)
+{
     FILE *arq = fopen(caminho, "rb");
-    if (arq == NULL) {
+    if (arq == NULL)
+    {
         return NULL;
     }
     fseek(arq, 0, SEEK_END);
@@ -155,7 +166,8 @@ static char *lerArquivo(const char *caminho) {
     rewind(arq);
 
     char *conteudo = (char *)malloc(tamanho + 1);
-    if (conteudo == NULL) {
+    if (conteudo == NULL)
+    {
         fclose(arq);
         return NULL;
     }
@@ -167,118 +179,174 @@ static char *lerArquivo(const char *caminho) {
 
 /* ===================== Funcoes da impressora ===================== */
 
-void configurarConexao(void) {
-    if (!conexaoAberta) {
+void configurarConexao(void)
+{
+    if (!conexaoAberta)
+    {
         tipo = lerInteiro("Digite o tipo de conexao (1 para USB, 2 para Serial, etc.): ");
         capturarEntrada("Digite o modelo da impressora: ", modelo, sizeof(modelo));
         capturarEntrada("Digite a porta de conexao (ex: USB): ", conexao, sizeof(conexao));
         parametro = lerInteiro("Digite o parametro adicional (ex: 0 para padrao): ");
         printf("Parametros de conexao configurados com sucesso.\n");
-    } else {
+    }
+    else
+    {
         printf("Conexao ja configurada. Pronta para uso.\n");
     }
 }
 
-void abrirConexao(void) {
-    if (!conexaoAberta) {
+void abrirConexao(void)
+{
+    if (!conexaoAberta)
+    {
         int retorno = AbreConexaoImpressora(tipo, modelo, conexao, parametro);
-        if (retorno == 0) {
+        if (retorno == 0)
+        {
             conexaoAberta = 1;
             printf("Conexao aberta com sucesso.\n");
-        } else {
+        }
+        else
+        {
             printf("Erro ao abrir conexao. Codigo de erro: %d\n", retorno);
         }
-    } else {
+    }
+    else
+    {
         printf("Conexao ja esta aberta.\n");
     }
 }
 
-void fecharConexao(void) {
-    
-}
+int Login(void)
+{
+    for (int i = 3; i > -1; i--)
+    {
+        char usuario[10];
+        int senha;
 
-void imprimirTexto(void) {
-   
-}
-
-void imprimirQRCode(void) {
-    
-}
-
-void imprimirCodigoBarras(void) {
-    
-}
-
-void imprimirXMLSAT(void) {
-    
-        /* le o arquivo XML (na raiz do projeto) para a memoria */
-        //char *dadosXML = lerArquivo("XMLSAT.xml");
+        if (i == 0)
+        {
+            printf("3 tentativas falhas, encerrando programa...");
+            return 1;
+        }
+        printf("Voce possui %d tentativas\n", i);
         
+        printf("Digite o usuario: ");
+        scanf("%s", &usuario);
+        printf("Digite a senha: ");
+        scanf("%d", &senha);
+
+        if (strcmp(usuario, "admin") == 0 && senha == 1234)
+        {
+            printf("Login com sucesso!");
+            return 0;
+        }
+    }
 }
 
-void imprimirXMLCancelamentoSAT(void) {
-    	
-    	/* le o arquivo XML (na raiz do projeto) para a memoria */
-        //char *dadosXML = lerArquivo("CANC_SAT.xml");
-        
+void fecharConexao(void)
+{
 }
 
-void abrirGavetaElgin(void) {
-    
+void imprimirTexto(void)
+{
 }
 
-void abrirGaveta(void) {
-    
-}
-
-void emitirSinalSonoro(void) {
-    /* 1) Verifica se a conexao esta aberta antes de pedir qualquer dado */
-    if (!conexaoAberta) {
+void imprimirQRCode(void)
+{
+    if (!conexaoAberta)
+    {
         printf("Conexao fechada. Abra a conexao antes (opcao 2).\n");
         return;
     }
-
-    /* 2) Pergunta a quantidade de bipes (a DLL aceita de 1 a 63) */
-    int qtd = lerInteiro("Digite a quantidade de sinais sonoros (1 a 63): ");
-    if (qtd < 1 || qtd > 63) {
-        printf("Quantidade invalida. Informe um valor entre 1 e 63.\n");
-        return;
+    char dados[200];
+    capturarEntrada("QR Code a imprimir: ", dados, sizeof(dados));
+    int retorno = ImpressaoQRCode(dados, 6, 4);
+    if (retorno >= 0)
+    {
+        printf("QR Code impresso!\n");
     }
-
-    /* 3) Chama o comando da DLL (tempoInicio = 50, tempoFim = 5) */
-    int retorno = SinalSonoro(qtd, 50, 5);
-
-    /* 4) Confere o retorno */
-    if (retorno == 0) {
-        printf("Sinal sonoro emitido com sucesso!\n");
-    } else {
-        printf("Erro ao emitir sinal sonoro. Codigo de erro: %d\n", retorno);
+    else
+    {
+        printf("Erro ao imprimir. Codigo: %d\n", retorno);
     }
+    Corte(5);
 }
 
-void exibirMenu(void) {
-    printf("\n*************************************************\n");
-    printf("**************** MENU IMPRESSORA ****************\n");
-    printf("*************************************************\n\n");
+void imprimirCodigoBarras(void)
+{
+}
 
-    printf("1  - Configurar Conexao\n");    
-    printf("--------------------------------------\n");
+void imprimirXMLSAT(void)
+{
+
+    /* le o arquivo XML (na raiz do projeto) para a memoria */
+    // char *dadosXML = lerArquivo("XMLSAT.xml");
+}
+
+void imprimirXMLCancelamentoSAT(void)
+{
+
+    /* le o arquivo XML (na raiz do projeto) para a memoria */
+    // char *dadosXML = lerArquivo("CANC_SAT.xml");
+}
+
+void abrirGavetaElgin(void)
+{
+}
+
+void abrirGaveta(void)
+{
+}
+
+void emitirSinalSonoro(void)
+{
+}
+
+void exibirMenu(void)
+{
+    printf("\n*****************\n");
+    printf("****** MENU IMPRESSORA ******\n");
+    printf("*****************\n\n");
+
+    printf("1 - Configurar Conexao\n");
+    printf("2 - Abrir Conexao\n");
+    printf("3 - Imprimir Texto\n");
+    printf("4 - Imprimir QR Code\n");
 }
 
 /* ===================== Programa principal ===================== */
 
-int main(void) {
-    if (!carregarDLL()) {
+int main(void)
+{
+    if (!carregarDLL())
+    {
         printf("Programa encerrado.\n");
         return 1;
     }
 
+    Login();
+
     int opcao = -1;
-    while (opcao != 0) {
+    while (opcao != 0)
+    {
         exibirMenu();
         opcao = lerInteiro("\nDigite a opcao desejada: ");
 
-        //...
+        switch (opcao)
+        {
+        case 1:
+            abrirConexao();
+            break;
+        case 2:
+            fecharConexao();
+            break;
+        case 3:
+            imprimirTexto();
+            break;
+        case 4:
+            imprimirQRCode();
+            break;
+        }
     }
 
     FreeLibrary(dll);
