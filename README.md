@@ -108,7 +108,7 @@ Ao iniciar o programa, o usuário tem até **3 tentativas** para realizar login:
 ---
 
 ## 👥 Autores
-*(em ordem alfabética)*
+
 
 - Iago Melo Santos
 - João Pedro Silva de Souza
