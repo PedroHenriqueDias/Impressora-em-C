@@ -232,7 +232,28 @@ void abrirGaveta(void) {
 }
 
 void emitirSinalSonoro(void) {
-    
+    /* 1) Verifica se a conexao esta aberta antes de pedir qualquer dado */
+    if (!conexaoAberta) {
+        printf("Conexao fechada. Abra a conexao antes (opcao 2).\n");
+        return;
+    }
+
+    /* 2) Pergunta a quantidade de bipes (a DLL aceita de 1 a 63) */
+    int qtd = lerInteiro("Digite a quantidade de sinais sonoros (1 a 63): ");
+    if (qtd < 1 || qtd > 63) {
+        printf("Quantidade invalida. Informe um valor entre 1 e 63.\n");
+        return;
+    }
+
+    /* 3) Chama o comando da DLL (tempoInicio = 50, tempoFim = 5) */
+    int retorno = SinalSonoro(qtd, 50, 5);
+
+    /* 4) Confere o retorno */
+    if (retorno == 0) {
+        printf("Sinal sonoro emitido com sucesso!\n");
+    } else {
+        printf("Erro ao emitir sinal sonoro. Codigo de erro: %d\n", retorno);
+    }
 }
 
 void exibirMenu(void) {
